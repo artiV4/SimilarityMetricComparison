@@ -3,7 +3,8 @@ from ks_eval.data import load_dsl_strong_password_csv
 from ks_eval.preprocess import PreprocessConfig
 import ks_eval.analysis_threshold
 
-metric = "cosine"
+metric = "gaussian"
+fpr_threshold_percent = 0.01 #1%
 
 
 csv_path = "./DSL-StrongPasswordData.csv"
@@ -20,9 +21,9 @@ genuine, impostor = ks_eval.analysis_threshold.compute_trials_by_name(
     random_state=42,
 )
 
-k = int(math.floor(0.01 * len(impostor)))
+k = int(math.floor(fpr_threshold_percent * len(impostor)))
 res = ks_eval.analysis_threshold.threshold_at_most_k_fp(genuine_distances=genuine, impostor_distances=impostor, k=k)
-print(f"impostor_trials={len(impostor)} => target_k=floor(1%)={k}")
+print(f"impostor_trials={len(impostor)} => target_k=floor({fpr_threshold_percent*100}%)={k}")
 print(f"t={res.threshold}")
 print(f"false_positives={res.false_positives} ({res.false_positives/len(impostor):.4%})")
 print(f"true_positives={res.true_positives} ({res.true_positives/len(genuine):.4%})")

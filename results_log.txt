@@ -1,0 +1,33 @@
+ks_eval.cli --csv "./DSL-StrongPasswordData.csv" --impute median --scaler standard --clip 5 --euclidean-threshold-k 1 --impostor-per-subject 200 --seed 42
+Euclidean threshold (accept if distance <= t)
+t = 3.785935883198592
+false_positives = 1 / 10200
+true_positives  = 377 / 18360
+false_negatives = 17983 / 18360
+
+impostor_trials=10200 => target_k=floor(1%)=102
+t=5.209024667883312
+false_positives=102 (1.0000%)
+true_positives=3857 (21.0076%)
+false_negatives=14503 (78.9924%)
+
+Cosine Similarity:
+impostor_trials=10200 => target_k=floor(1.0%)=102
+t=-0.47384233851634827
+false_positives=102 (1.0000%)
+true_positives=205 (1.1166%)
+false_negatives=18155 (98.8834%)
+
+Mahalanobis:
+impostor_trials=10200 => target_k=floor(1.0%)=102
+t=5.054656949403628
+false_positives=102 (1.0000%)
+true_positives=4299 (23.4150%)
+false_negatives=14061 (76.5850%)
+
+Gaussian Likelihood:
+impostor_trials=10200 => target_k=floor(1.0%)=102
+t=-198.69604315935553
+false_positives=102 (1.0000%)
+true_positives=0 (0.0000%)
+false_negatives=18360 (100.0000%)

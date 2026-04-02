@@ -27,7 +27,7 @@ def make_scorer(metric: str) -> Scorer:
         return CosineSimilarityScorer()
     if m == "mahalanobis":
         return MahalanobisDistanceScorer()
-    if m in {"gaussian", "gaussian_ll"}:
+    if m == "gaussian":
         return GaussianLogLikelihoodScorer()
     raise ValueError(f"Unknown metric: {metric}")
 
