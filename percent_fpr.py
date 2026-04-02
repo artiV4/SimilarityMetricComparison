@@ -1,11 +1,18 @@
+import sys
 import math
 from ks_eval.data import load_dsl_strong_password_csv
 from ks_eval.preprocess import PreprocessConfig
 import ks_eval.analysis_threshold
 
-metric = "gaussian"
-fpr_threshold_percent = 0.01 #1%
+if(len(sys.argv) != 3):
+    print("Usage: python percent_fpr.py <metric> <fpr_threshold>")
+    sys.exit(1)
 
+metric = sys.argv[1]
+fpr_threshold_percent = float(sys.argv[2])
+
+print(f"Similarity Metric - {metric}")
+print(f"FPR Threshold - {fpr_threshold_percent}")
 
 csv_path = "./DSL-StrongPasswordData.csv"
 preprocess = PreprocessConfig(impute="median", scaler="standard", clip=5.0)

@@ -31,3 +31,37 @@ t=-198.69604315935553
 false_positives=102 (1.0000%)
 true_positives=0 (0.0000%)
 false_negatives=18360 (100.0000%)
+
+
+
+0.1% fpr:
+Euclidean:
+impostor_trials=10200 => target_k=floor(0.1%)=10
+t=4.225486026156335
+false_positives=10 (0.0980%)
+true_positives=984 (5.3595%)
+false_negatives=17376 (94.6405%)
+
+Similarity Metric - cosine
+FPR Threshold - 0.001
+impostor_trials=10200 => target_k=floor(0.1%)=10
+t=-0.6281046381841173
+false_positives=10 (0.0980%)
+true_positives=59 (0.3214%)
+false_negatives=18301 (99.6786%)
+
+Similarity Metric - mahalanobis
+FPR Threshold - 0.001
+impostor_trials=10200 => target_k=floor(0.1%)=10
+t=4.106517950615436
+false_positives=10 (0.0980%)
+true_positives=1300 (7.0806%)
+false_negatives=17060 (92.9194%)
+
+Similarity Metric - gaussian
+FPR Threshold - 0.001
+impostor_trials=10200 => target_k=floor(0.1%)=10
+t=-245.75814481973867
+false_positives=10 (0.0980%)
+true_positives=0 (0.0000%)
+false_negatives=18360 (100.0000%)
