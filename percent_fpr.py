@@ -8,7 +8,7 @@ if(len(sys.argv) != 3):
     print("Usage: python percent_fpr.py <metric> <fpr_threshold>")
     sys.exit(1)
 
-metric = sys.argv[1]
+metric = sys.argv[1].strip().lower()
 fpr_threshold_percent = float(sys.argv[2])
 
 print(f"Similarity Metric - {metric}")
@@ -29,7 +29,19 @@ genuine, impostor = ks_eval.analysis_threshold.compute_trials_by_name(
 )
 
 k = int(math.floor(fpr_threshold_percent * len(impostor)))
-res = ks_eval.analysis_threshold.threshold_at_most_k_fp(genuine_distances=genuine, impostor_distances=impostor, k=k)
+
+# Decide threshold direction based on metric type.
+# - distances (euclidean/mahalanobis): accept if score <= t
+# - similarities (cosine/gaussian log-likelihood): accept if score >= t
+scorer = ks_eval.analysis_threshold.make_scorer(metric)
+accept_greater = bool(getattr(scorer, "greater_is_better", False))
+
+res = ks_eval.analysis_threshold.threshold_at_most_k_fp(
+    genuine_distances=genuine,
+    impostor_distances=impostor,
+    k=k,
+    accept_greater=accept_greater,
+)
 print(f"impostor_trials={len(impostor)} => target_k=floor({fpr_threshold_percent*100}%)={k}")
 print(f"t={res.threshold}")
 print(f"false_positives={res.false_positives} ({res.false_positives/len(impostor):.4%})")

@@ -27,7 +27,7 @@ def make_scorer(metric: str) -> Scorer:
         return CosineSimilarityScorer()
     if m == "mahalanobis":
         return MahalanobisDistanceScorer()
-    if m == "gaussian":
+    if m in {"gaussian", "gaussian_ll"}:
         return GaussianLogLikelihoodScorer()
     raise ValueError(f"Unknown metric: {metric}")
 
@@ -165,29 +165,51 @@ def threshold_at_most_k_fp(
     genuine_distances: np.ndarray,
     impostor_distances: np.ndarray,
     k: int = 1,
+    accept_greater: bool = False,
 ) -> ThresholdResult:
-    """Find the largest acceptance threshold such that FP <= k.
+    """Find an acceptance threshold such that FP <= k.
 
-    Accept if distance <= threshold.
+    If accept_greater=False (distance-like): accept if score <= threshold.
+    If accept_greater=True  (similarity-like): accept if score >= threshold.
     """
 
+    # Sort impostor scores in the direction that makes the acceptance region contiguous.
+    # - distance-like (<=): accepted impostors are the smallest values.
+    # - similarity-like (>=): accepted impostors are the largest values.
     imp_sorted = np.sort(impostor_distances)
 
     if len(imp_sorted) == 0:
         raise ValueError("No impostor distances provided")
 
-    # If k=0 => threshold less than min impostor.
-    if k <= 0:
-        threshold = float(np.nextafter(imp_sorted[0], -np.inf))
-    elif k >= len(imp_sorted):
-        threshold = float(imp_sorted[-1])
-    else:
-        # Want at most k impostors accepted => threshold should be < (k+1)th smallest impostor.
-        threshold = float(np.nextafter(imp_sorted[k], -np.inf))
+    n = len(imp_sorted)
 
-    fp = int(np.sum(impostor_distances <= threshold))
-    tp = int(np.sum(genuine_distances <= threshold))
-    fn = int(np.sum(genuine_distances > threshold))
+    if not accept_greater:
+        # accept if score <= t
+        if k <= 0:
+            threshold = float(np.nextafter(imp_sorted[0], -np.inf))
+        elif k >= n:
+            threshold = float(imp_sorted[-1])
+        else:
+            # Want at most k impostors accepted => t < (k+1)th smallest impostor.
+            threshold = float(np.nextafter(imp_sorted[k], -np.inf))
+
+        fp = int(np.sum(impostor_distances <= threshold))
+        tp = int(np.sum(genuine_distances <= threshold))
+        fn = int(np.sum(genuine_distances > threshold))
+    else:
+        # accept if score >= t
+        if k <= 0:
+            threshold = float(np.nextafter(imp_sorted[-1], np.inf))
+        elif k >= n:
+            threshold = float(imp_sorted[0])
+        else:
+            # Want at most k impostors accepted => accept region is top-k scores.
+            # Set t just above the (n-k-1)th element.
+            threshold = float(np.nextafter(imp_sorted[n - k - 1], np.inf))
+
+        fp = int(np.sum(impostor_distances >= threshold))
+        tp = int(np.sum(genuine_distances >= threshold))
+        fn = int(np.sum(genuine_distances < threshold))
 
     return ThresholdResult(
         threshold=threshold,

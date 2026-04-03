@@ -25,12 +25,13 @@ false_positives=102 (1.0000%)
 true_positives=4299 (23.4150%)
 false_negatives=14061 (76.5850%)
 
-Gaussian Likelihood:
+Similarity Metric - gaussian
+FPR Threshold - 0.01
 impostor_trials=10200 => target_k=floor(1.0%)=102
-t=-198.69604315935553
+t=-38.7752068287905
 false_positives=102 (1.0000%)
-true_positives=0 (0.0000%)
-false_negatives=18360 (100.0000%)
+true_positives=4480 (24.4009%)
+false_negatives=13880 (75.5991%)
 
 
 
@@ -61,7 +62,7 @@ false_negatives=17060 (92.9194%)
 Similarity Metric - gaussian
 FPR Threshold - 0.001
 impostor_trials=10200 => target_k=floor(0.1%)=10
-t=-245.75814481973867
+t=-34.415448061435335
 false_positives=10 (0.0980%)
-true_positives=0 (0.0000%)
-false_negatives=18360 (100.0000%)
+true_positives=1463 (7.9684%)
+false_negatives=16897 (92.0316%)

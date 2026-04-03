@@ -78,6 +78,24 @@ def main() -> None:
             "for Euclidean distance with at most K false positives, prints it, and exits."
         ),
     )
+
+    parser.add_argument(
+        "--gaussian-threshold-k",
+        type=int,
+        default=None,
+        help=(
+            "If set, computes an acceptance threshold t (accept if gaussian_ll>=t) "
+            "with at most K false positives, prints it, and exits."
+        ),
+    )
+    parser.add_argument(
+        "--accept-greater",
+        action="store_true",
+        help=(
+            "Accept if score >= threshold (useful for similarity/likelihood metrics). "
+            "If not set, accept if score <= threshold (distance metrics)."
+        ),
+    )
     parser.add_argument(
         "--impostor-per-subject",
         type=int,
@@ -129,9 +147,35 @@ def main() -> None:
             genuine_distances=genuine,
             impostor_distances=impostor,
             k=int(args.euclidean_threshold_k),
+            accept_greater=bool(args.accept_greater),
         )
         print(
             "Euclidean threshold (accept if distance <= t)\n"
+            f"t = {res.threshold}\n"
+            f"false_positives = {res.false_positives} / {res.n_impostor_trials}\n"
+            f"true_positives  = {res.true_positives} / {res.n_genuine_trials}\n"
+            f"false_negatives = {res.false_negatives} / {res.n_genuine_trials}\n"
+        )
+        return
+
+    if args.gaussian_threshold_k is not None:
+        genuine, impostor = compute_trials_by_name(
+            dataset,
+            metric="gaussian",
+            preprocess=preprocess,
+            baseline_fraction=args.baseline_fraction,
+            min_baseline=args.min_baseline,
+            impostor_per_subject=args.impostor_per_subject,
+            random_state=args.seed,
+        )
+        res = threshold_at_most_k_fp(
+            genuine_distances=genuine,
+            impostor_distances=impostor,
+            k=int(args.gaussian_threshold_k),
+            accept_greater=True,
+        )
+        print(
+            "Gaussian log-likelihood threshold (accept if score >= t)\n"
             f"t = {res.threshold}\n"
             f"false_positives = {res.false_positives} / {res.n_impostor_trials}\n"
             f"true_positives  = {res.true_positives} / {res.n_genuine_trials}\n"
