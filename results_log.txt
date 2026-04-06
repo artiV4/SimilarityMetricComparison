@@ -1,31 +1,20 @@
-ks_eval.cli --csv "./DSL-StrongPasswordData.csv" --impute median --scaler standard --clip 5 --euclidean-threshold-k 1 --impostor-per-subject 200 --seed 42
-Euclidean threshold (accept if distance <= t)
-t = 3.785935883198592
-false_positives = 1 / 10200
-true_positives  = 377 / 18360
-false_negatives = 17983 / 18360
-
-impostor_trials=10200 => target_k=floor(1%)=102
+Similarity Metric - euclidean 
+FPR Threshold - 0.01
+impostor_trials=10200 => target_k=floor(1.0%)=102
 t=5.209024667883312
 false_positives=102 (1.0000%)
 true_positives=3857 (21.0076%)
 false_negatives=14503 (78.9924%)
 
-Cosine Similarity:
+Similarity Metric - cosine 
+FPR Threshold - 0.01
 impostor_trials=10200 => target_k=floor(1.0%)=102
-t=-0.47384233851634827
+t=0.41858656758834983
 false_positives=102 (1.0000%)
-true_positives=205 (1.1166%)
-false_negatives=18155 (98.8834%)
+true_positives=339 (1.8464%)
+false_negatives=18021 (98.1536%)
 
-Mahalanobis:
-impostor_trials=10200 => target_k=floor(1.0%)=102
-t=5.054656949403628
-false_positives=102 (1.0000%)
-true_positives=4299 (23.4150%)
-false_negatives=14061 (76.5850%)
-
-Similarity Metric - gaussian
+Similarity Metric - gaussian 
 FPR Threshold - 0.01
 impostor_trials=10200 => target_k=floor(1.0%)=102
 t=-38.7752068287905
@@ -33,25 +22,90 @@ false_positives=102 (1.0000%)
 true_positives=4480 (24.4009%)
 false_negatives=13880 (75.5991%)
 
+Similarity Metric - mahalanobis 
+FPR Threshold - 0.01
+impostor_trials=10200 => target_k=floor(1.0%)=102
+t=5.054656949403628
+false_positives=102 (1.0000%)
+true_positives=4299 (23.4150%)
+false_negatives=14061 (76.5850%)
+
+Similarity Metric - mahalanobis:rank=25 rank=25
+FPR Threshold - 0.01
+impostor_trials=10200 => target_k=floor(1.0%)=102
+t=5.054656949403626
+false_positives=102 (1.0000%)
+true_positives=4299 (23.4150%)
+false_negatives=14061 (76.5850%)
+
+Similarity Metric - mahalanobis:rank=20 rank=20
+FPR Threshold - 0.01
+impostor_trials=10200 => target_k=floor(1.0%)=102
+t=4.906921053385767
+false_positives=102 (1.0000%)
+true_positives=4312 (23.4858%)
+false_negatives=14048 (76.5142%)
+
+Similarity Metric - mahalanobis:rank=15 rank=15
+FPR Threshold - 0.01
+impostor_trials=10200 => target_k=floor(1.0%)=102
+t=3.7699842941223847
+false_positives=102 (1.0000%)
+true_positives=3099 (16.8791%)
+false_negatives=15261 (83.1209%)
+
+Similarity Metric - mahalanobis:rank=10 rank=10
+FPR Threshold - 0.01
+impostor_trials=10200 => target_k=floor(1.0%)=102
+t=2.4954620272917296
+false_positives=102 (1.0000%)
+true_positives=1878 (10.2288%)
+false_negatives=16482 (89.7712%)
+
+Similarity Metric - mahalanobis:rank=5 
+FPR Threshold - 0.01
+impostor_trials=10200 => target_k=floor(1.0%)=102
+t=1.16081977960709
+false_positives=102 (1.0000%)
+true_positives=539 (2.9357%)
+false_negatives=17821 (97.0643%)
+
+Similarity Metric - mahalanobis:rank=3 
+FPR Threshold - 0.01
+impostor_trials=10200 => target_k=floor(1.0%)=102
+t=0.5753659128016911
+false_positives=102 (1.0000%)
+true_positives=282 (1.5359%)
+false_negatives=18078 (98.4641%)
 
 
-0.1% fpr:
-Euclidean:
+-----------------------------------------------------------------------
+
+Similarity Metric - euclidean 
+FPR Threshold - 0.001
 impostor_trials=10200 => target_k=floor(0.1%)=10
 t=4.225486026156335
 false_positives=10 (0.0980%)
 true_positives=984 (5.3595%)
 false_negatives=17376 (94.6405%)
 
-Similarity Metric - cosine
+Similarity Metric - cosine 
 FPR Threshold - 0.001
 impostor_trials=10200 => target_k=floor(0.1%)=10
-t=-0.6281046381841173
+t=0.5851660874956378
 false_positives=10 (0.0980%)
-true_positives=59 (0.3214%)
-false_negatives=18301 (99.6786%)
+true_positives=34 (0.1852%)
+false_negatives=18326 (99.8148%)
 
-Similarity Metric - mahalanobis
+Similarity Metric - gaussian 
+FPR Threshold - 0.001
+impostor_trials=10200 => target_k=floor(0.1%)=10
+t=-34.415448061435335
+false_positives=10 (0.0980%)
+true_positives=1463 (7.9684%)
+false_negatives=16897 (92.0316%)
+
+Similarity Metric - mahalanobis 
 FPR Threshold - 0.001
 impostor_trials=10200 => target_k=floor(0.1%)=10
 t=4.106517950615436
@@ -59,10 +113,42 @@ false_positives=10 (0.0980%)
 true_positives=1300 (7.0806%)
 false_negatives=17060 (92.9194%)
 
-Similarity Metric - gaussian
+Similarity Metric - mahalanobis:rank=25 rank=25
 FPR Threshold - 0.001
 impostor_trials=10200 => target_k=floor(0.1%)=10
-t=-34.415448061435335
+t=4.106517950615437
 false_positives=10 (0.0980%)
-true_positives=1463 (7.9684%)
-false_negatives=16897 (92.0316%)
+true_positives=1300 (7.0806%)
+false_negatives=17060 (92.9194%)
+
+Similarity Metric - mahalanobis:rank=20 rank=20
+FPR Threshold - 0.001
+impostor_trials=10200 => target_k=floor(0.1%)=10
+t=3.9884015654895184
+false_positives=10 (0.0980%)
+true_positives=1361 (7.4129%)
+false_negatives=16999 (92.5871%)
+
+Similarity Metric - mahalanobis:rank=15 rank=15
+FPR Threshold - 0.001
+impostor_trials=10200 => target_k=floor(0.1%)=10
+t=2.9604025293008673
+false_positives=10 (0.0980%)
+true_positives=646 (3.5185%)
+false_negatives=17714 (96.4815%)
+
+Similarity Metric - mahalanobis:rank=10 rank=10
+FPR Threshold - 0.001
+impostor_trials=10200 => target_k=floor(0.1%)=10
+t=1.846565327712467
+false_positives=10 (0.0980%)
+true_positives=261 (1.4216%)
+false_negatives=18099 (98.5784%)
+
+Similarity Metric - mahalanobis:rank=5 rank=5
+FPR Threshold - 0.001
+impostor_trials=10200 => target_k=floor(0.1%)=10
+t=0.6970454980680822
+false_positives=10 (0.0980%)
+true_positives=44 (0.2397%)
+false_negatives=18316 (99.7603%)

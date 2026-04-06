@@ -1,0 +1,9 @@
+FAR  | Metric              | TAR   | FRR
+1%   | Euclidean Distance  | 21.0% | 79.0%
+     | Cosine Similarity   | 1.8%  | 98.2%
+     | Gaussian Likelihood | 24.4% | 75.6%
+     | Mahalanobis         | 23.4% | 76.6%
+     | Mahalanobis:rank=25 | 23.4% | 76.6%
+     | Mahalanobis:rank=20 | 23.5% | 76.5%
+     | Mahalanobis:rank=15 | 16.9% | 83.1%
+     | Mahalanobis:rank=10 | 10.2% | 89.9%

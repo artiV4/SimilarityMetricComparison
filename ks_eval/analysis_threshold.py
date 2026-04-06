@@ -17,16 +17,39 @@ from ks_eval.scoring import (
 )
 
 
+def _parse_metric_and_params(metric: str) -> tuple[str, dict[str, str]]:
+    """Parse metric identifiers like 'mahalanobis', 'mahalanobis:8', 'mahalanobis:rank=8'."""
+
+    raw = metric.strip().lower()
+    if ":" not in raw:
+        return raw, {}
+    name, rest = raw.split(":", 1)
+    rest = rest.strip()
+    if not rest:
+        return name, {}
+    if "=" in rest:
+        params: dict[str, str] = {}
+        for part in rest.split(","):
+            if not part:
+                continue
+            k, v = part.split("=", 1)
+            params[k.strip()] = v.strip()
+        return name, params
+    # bare ':<int>' shorthand => rank
+    return name, {"rank": rest}
+
+
 def make_scorer(metric: str) -> Scorer:
     """Create a scorer instance from a string identifier."""
 
-    m = metric.strip().lower()
+    m, params = _parse_metric_and_params(metric)
     if m == "euclidean":
         return EuclideanDistanceScorer()
     if m == "cosine":
         return CosineSimilarityScorer()
     if m == "mahalanobis":
-        return MahalanobisDistanceScorer()
+        rank = params.get("rank")
+        return MahalanobisDistanceScorer(rank=(int(rank) if rank is not None else None))
     if m in {"gaussian", "gaussian_ll"}:
         return GaussianLogLikelihoodScorer()
     raise ValueError(f"Unknown metric: {metric}")
@@ -91,21 +114,33 @@ def compute_trials(
         baseline_df = per_subject[subject]["baseline"]
         probes_df = per_subject[subject]["probes"]
 
-        baseline_pp, probes_pp, _ = preprocess_fit_transform(
+        baseline_pp, probes_pp, artifacts = preprocess_fit_transform(
             baseline_df, probes_df, dataset.feature_columns, preprocess
         )
 
-        # Scorers are stateful per-subject; re-instantiate when possible.
+        feature_cols_used = artifacts.get("feature_columns_used", dataset.feature_columns)
+
+        # Scorers are stateful per-subject; re-instantiate per subject.
+        # IMPORTANT: preserve any configured init params (e.g., Mahalanobis rank).
         try:
-            local_scorer = type(scorer)()  # type: ignore[call-arg]
+            if hasattr(scorer, "__dict__"):
+                local_scorer = type(scorer)(
+                    **{
+                        k: v
+                        for k, v in scorer.__dict__.items()
+                        if not k.endswith("_")
+                    }
+                )
+            else:
+                local_scorer = type(scorer)()  # type: ignore[call-arg]
         except Exception:
             local_scorer = scorer
 
-        local_scorer = local_scorer.fit(baseline_pp, dataset.feature_columns)
+        local_scorer = local_scorer.fit(baseline_pp, feature_cols_used)
 
         # Genuine distances.
         for _, probe_row in probes_pp.iterrows():
-            genuine.append(local_scorer.score(probe_row, dataset.feature_columns))
+            genuine.append(local_scorer.score(probe_row, feature_cols_used))
 
         # Impostor trials: sample impostor_per_subject rows total for this subject.
         other_subjects = [s for s in subjects if s != subject]
@@ -125,14 +160,15 @@ def compute_trials(
             # Apply *this subject's* preprocessing transform to impostor row:
             # easiest is to run preprocess_fit_transform with probes including only this row.
             imp_row_df = pd.DataFrame([imp_row])
-            _, imp_pp_df, _ = preprocess_fit_transform(
+            _, imp_pp_df, imp_artifacts = preprocess_fit_transform(
                 baseline_df,
                 imp_row_df,
                 dataset.feature_columns,
                 preprocess,
             )
             imp_pp_row = imp_pp_df.iloc[0]
-            impostor.append(local_scorer.score(imp_pp_row, dataset.feature_columns))
+            # Use the same features that the scorer was fit with (baseline-fitted selection).
+            impostor.append(local_scorer.score(imp_pp_row, feature_cols_used))
 
     return np.asarray(genuine, dtype=float), np.asarray(impostor, dtype=float)
 

@@ -90,6 +90,10 @@ class MahalanobisDistanceScorer:
     name: str = "mahalanobis"
     greater_is_better: bool = False
 
+    # Optional low-rank approximation: use top-r eigenvectors of the covariance.
+    # If None, uses full pseudo-inverse.
+    rank: int | None = None
+
     mu_: np.ndarray | None = None
     inv_cov_: np.ndarray | None = None
 
@@ -101,7 +105,28 @@ class MahalanobisDistanceScorer:
 
         # LedoitWolf can't handle NaNs; assume preprocessing handled them.
         cov = LedoitWolf().fit(X).covariance_
-        self.inv_cov_ = np.linalg.pinv(cov)
+
+        r = self.rank
+        if r is None:
+            self.inv_cov_ = np.linalg.pinv(cov)
+            return self
+
+        if r <= 0:
+            raise ValueError("Mahalanobis rank must be a positive integer or None")
+
+        # Eigen-decomposition for symmetric covariance.
+        # cov = V diag(w) V^T, with w sorted ascending by eigh.
+        w, V = np.linalg.eigh(cov)
+        # Keep largest eigenvalues (most variance directions).
+        r_eff = min(int(r), int(len(w)))
+        idx = np.argsort(w)[-r_eff:]
+        w_top = w[idx]
+        V_top = V[:, idx]
+
+        # Build low-rank pseudo-inverse: V_top diag(1/w_top) V_top^T
+        eps = np.finfo(float).eps
+        inv_w_top = 1.0 / np.maximum(w_top, eps)
+        self.inv_cov_ = (V_top * inv_w_top) @ V_top.T
         return self
 
     def score(self, probe_row: pd.Series, feature_columns: list[str]) -> float:

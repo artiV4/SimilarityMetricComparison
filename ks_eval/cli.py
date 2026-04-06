@@ -120,6 +120,16 @@ def main() -> None:
         ),
     )
 
+    parser.add_argument(
+        "--mahalanobis-rank",
+        type=int,
+        default=None,
+        help=(
+            "If set, approximate Mahalanobis using top-r covariance eigenvectors "
+            "(low-rank pseudo-inverse). Useful for regularization/speed."
+        ),
+    )
+
     args = parser.parse_args()
 
     dataset = load_dsl_strong_password_csv(args.csv)
@@ -191,7 +201,7 @@ def main() -> None:
         elif m == "cosine":
             scorers.append(CosineSimilarityScorer())
         elif m == "mahalanobis":
-            scorers.append(MahalanobisDistanceScorer())
+            scorers.append(MahalanobisDistanceScorer(rank=args.mahalanobis_rank))
         elif m in {"gaussian", "gaussian_ll"}:
             scorers.append(GaussianLogLikelihoodScorer())
         else:

@@ -67,8 +67,14 @@ def evaluate_sequential_probes(
         for s in scorers:
             # Scorers are stateful per-subject. Create a shallow copy by re-instantiating
             # via type(s) when possible; fall back to using the instance as-is.
+            # IMPORTANT: preserve any configured init params (e.g., Mahalanobis rank).
             try:
-                s_local = type(s)()  # type: ignore[call-arg]
+                if hasattr(s, "__dict__"):
+                    s_local = type(s)(
+                        **{k: v for k, v in s.__dict__.items() if not k.endswith("_")}
+                    )
+                else:
+                    s_local = type(s)()  # type: ignore[call-arg]
             except Exception:
                 s_local = s
             fitted_scorers.append(s_local.fit(baseline_df, dataset.feature_columns))
